@@ -1,5 +1,19 @@
 .login-wrapper {
     padding: 20px;
+    .wrong, .success {
+        font-size: 20px;
+        font-weight: bold;
+
+        color: red;
+    }
+
+    .success {
+        color: green;
+    }
+
+    .username, .password {
+        margin-bottom: 20px;
+    }
     .btn {
         padding: 10px 20px;
 

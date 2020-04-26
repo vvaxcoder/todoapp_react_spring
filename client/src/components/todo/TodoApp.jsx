@@ -1,18 +1,47 @@
 import React, { Component } from "react";
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import "./style.scss";
 
 class TodoApp extends Component {
   render() {
     return (
+      <Router>
       <div>
         <div className='todo-app'>
-          <LoginComponent />
+          <Switch>
+            <Route path='/' exact component={LoginComponent} />
+            <Route path='/login' component={LoginComponent} />
+            <Route path='/welcome' component={WelcomeComponent} />
+            <Route component={ErrorComponent} />
+          </Switch>
         </div>
+      </div>
+      </Router>
+    );
+  }
+}
+
+class WelcomeComponent extends Component {
+  render() {
+    return (
+      <div>
+        Test
       </div>
     );
   }
 }
+
+class ErrorComponent extends Component {
+  render() {
+    return (
+      <div>
+        Error has occured.
+      </div>
+    );
+  }
+}
+
 
 class LoginComponent extends Component {
   constructor(props) {
@@ -20,12 +49,13 @@ class LoginComponent extends Component {
 
     this.state = {
       username: "",
-      password: ""
+      password: "",
+      hasLoginFailed: false,
+      showSuccessMessage: false
     };
   }
 
   handlerChange = event => {
-    console.log(event.target.value);
     this.setState({
       [event.target.name]: event.target.value
     });
@@ -45,35 +75,72 @@ class LoginComponent extends Component {
   //     });
   //   };
 
+  loginHandler = () => {
+    if (this.state.username === "test" && this.state.password === "dummy") {
+      this.props.history.push('/welcome');
+      this.setState({ showSuccessMessage: true, hasLoginFailed: false });
+    } else {
+      this.setState({ showSuccessMessage: false, hasLoginFailed: true });
+    }
+  };
+
   render() {
     const {
       state,
-    //   handlerUsernameChange,
-    //   handlerPasswordChange,
-      handlerChange
+      //   handlerUsernameChange,
+      //   handlerPasswordChange,
+      handlerChange,
+      loginHandler
     } = this;
 
     return (
       <div className='login-wrapper'>
-        User Name:
-        <input
-          type='text'
-          name='username'
-          value={state.username}
-          //   onChange={handlerUsernameChange}
-          onChange={handlerChange}
-        />
-        Password:
-        <input
-          type='password'
-          name={state.password}
-          // onChange={handlerPasswordChange}
-          onChange={handlerChange}
-        />
-        <button className='btn'>Login</button>
+        <ShowInvalidTitle hasLoginFailed={state.hasLoginFailed} />
+        
+        <ShowSuccessTitle showSuccessMessage={state.showSuccessMessage} />
+
+        <div className='username'>
+          Username:
+          <input
+            type='text'
+            name='username'
+            value={state.username}
+            //   onChange={handlerUsernameChange}
+            onChange={handlerChange}
+          />
+        </div>
+        <div className='password'>
+          Password:
+          <input
+            type='password'
+            name='password'
+            value={state.password}
+            // onChange={handlerPasswordChange}
+            onChange={handlerChange}
+          />
+        </div>
+        <button className='btn' onClick={loginHandler}>
+          Login
+        </button>
       </div>
     );
   }
 }
+
+const ShowInvalidTitle = ({ hasLoginFailed }) => {
+  if (hasLoginFailed) {
+    return <div className='wrong'>Invalid Credentials</div>;
+  }
+
+  return null;
+};
+
+const ShowSuccessTitle = ({ showSuccessMessage }) => {
+  if (showSuccessMessage) {
+    return <div className='success'>Login Successfull</div>;
+  }
+
+  return null;
+};
 
 export default TodoApp;

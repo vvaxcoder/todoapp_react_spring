@@ -1,5 +1,7 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
+
+import AuthenticationService from './AuthenticationService';
 
 import "./style.scss";
 
@@ -15,6 +17,7 @@ class TodoApp extends Component {
               <Route path='/login' component={LoginComponent} />
               <Route path='/welcome/:name' component={WelcomeComponent} />
               <Route path='/todos' component={ListTodosComponent} />
+              <Route path='/logout' component={LogoutComponent} />
               <Route component={ErrorComponent} />
             </Switch>
             <FooterComponent />
@@ -28,10 +31,14 @@ class TodoApp extends Component {
 class WelcomeComponent extends Component {
   render() {
     return (
-      <div>
-        Welcome {this.props.match.params.name}. You can manage it{" "}
-        <Link to='/todos'>here.</Link>
-      </div>
+      <Fragment>
+        <h1>Welcome!</h1>
+
+        <div className="container">
+          Welcome {this.props.match.params.name}. You can manage it{" "}
+          <Link to='/todos'>here.</Link>
+        </div>
+      </Fragment>
     );
   }
 }
@@ -72,8 +79,22 @@ class HeaderComponent extends Component {
 class FooterComponent extends Component {
   render() {
     return (
+      <footer className="footer">
+        <span className="text-muted">whatever</span>
+      </footer>
+    );
+  }
+}
+
+class LogoutComponent extends Component {
+  render() {
+    return (
       <div>
-        <hr/> Footer
+        <h1>You are logged out</h1> 
+
+        <div className="container">
+          Whatever what is the text right here
+        </div>
       </div>
     );
   }
@@ -113,27 +134,29 @@ class ListTodosComponent extends Component {
       <div>
         <h1>List Todos</h1>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Description</th>
-              <th>Is Completed?</th>
-              <th>Target Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {todos.map(todo => (
-              <tr key={todo.id}>
-                <td>{todo.id}</td>
-                <td>{todo.description}</td>
-                <td>{todo.done.toString()}</td>
-                <td>{todo.targetDate.toString()}</td>
+        <div className="container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Description</th>
+                <th>Is Completed?</th>
+                <th>Target Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {todos.map(todo => (
+                <tr key={todo.id}>
+                  <td>{todo.id}</td>
+                  <td>{todo.description}</td>
+                  <td>{todo.done.toString()}</td>
+                  <td>{todo.targetDate.toString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -179,7 +202,10 @@ class LoginComponent extends Component {
 
   loginHandler = () => {
     if (this.state.username === "test" && this.state.password === "dummy") {
+      AuthenticationService.registerSuccessfullLogin(this.state.username);
+
       this.props.history.push(`/welcome/${this.state.username}`);
+
       this.setState({ showSuccessMessage: true, hasLoginFailed: false });
     } else {
       this.setState({ showSuccessMessage: false, hasLoginFailed: true });
@@ -197,33 +223,37 @@ class LoginComponent extends Component {
 
     return (
       <div className='login-wrapper'>
-        <ShowInvalidTitle hasLoginFailed={state.hasLoginFailed} />
+        <h1>Login</h1>
 
-        <ShowSuccessTitle showSuccessMessage={state.showSuccessMessage} />
+        <div className="container">
+          <ShowInvalidTitle hasLoginFailed={state.hasLoginFailed} />
 
-        <div className='username'>
-          Username:
-          <input
-            type='text'
-            name='username'
-            value={state.username}
-            //   onChange={handlerUsernameChange}
-            onChange={handlerChange}
-          />
+          <ShowSuccessTitle showSuccessMessage={state.showSuccessMessage} />
+
+          <div className='username'>
+            Username:
+            <input
+              type='text'
+              name='username'
+              value={state.username}
+              //   onChange={handlerUsernameChange}
+              onChange={handlerChange}
+            />
+          </div>
+          <div className='password'>
+            Password:
+            <input
+              type='password'
+              name='password'
+              value={state.password}
+              // onChange={handlerPasswordChange}
+              onChange={handlerChange}
+            />
+          </div>
+          <button className='btn btn-success' onClick={loginHandler}>
+            Login
+          </button>
         </div>
-        <div className='password'>
-          Password:
-          <input
-            type='password'
-            name='password'
-            value={state.password}
-            // onChange={handlerPasswordChange}
-            onChange={handlerChange}
-          />
-        </div>
-        <button className='btn' onClick={loginHandler}>
-          Login
-        </button>
       </div>
     );
   }
@@ -231,7 +261,7 @@ class LoginComponent extends Component {
 
 const ShowInvalidTitle = ({ hasLoginFailed }) => {
   if (hasLoginFailed) {
-    return <div className='wrong'>Invalid Credentials</div>;
+    return <div className='wrong alert alert-warning'>Invalid Credentials</div>;
   }
 
   return null;
